@@ -21,14 +21,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up JDK 24
+    - name: Set up JDK 11
       uses: actions/setup-java@v4
       with:
-        java-version: '24'
+        java-version: '11'
         distribution: 'temurin'
         cache: maven
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+    - name: Build and test with Maven
+      run: mvn -B clean test
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
