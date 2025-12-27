@@ -26,6 +26,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -321,39 +322,40 @@ FileFormatLoop:                     for (InputFormat format : drawing.getInputFo
         return retValue;
     }
 
-    protected Transferable createTransferable(DrawingView view, java.util.Set<Figure> transferFigures) {
-        Transferable retValue;
+    protected Transferable createTransferable(DrawingView view, Set<Figure> transferFigures) {
         Drawing drawing = view.getDrawing();
         exportedFigures = null;
-        if (drawing.getOutputFormats() == null
-            || drawing.getOutputFormats().size() == 0) {
-            retValue = null;
-        } else {
-            java.util.List<Figure> toBeCopied = drawing.sort(transferFigures);
-            if (toBeCopied.size() > 0) {
-                try {
-                    CompositeTransferable transfer = new CompositeTransferable();
-                    for (OutputFormat format : drawing.getOutputFormats()) {
-                        Transferable t = format.createTransferable(
+
+        List<OutputFormat> formats = drawing.getOutputFormats();
+        if (formats == null || formats.isEmpty()) {
+            return null;
+        }
+
+        List<Figure> toBeCopied = drawing.sort(transferFigures);
+        if (toBeCopied.isEmpty()) {
+            return null;
+        }
+
+        try {
+            CompositeTransferable transfer = new CompositeTransferable();
+            for (OutputFormat format : formats) {
+                Transferable t = format.createTransferable(
                                 drawing,
                                 toBeCopied,
                                 view.getScaleFactor());
-                        if (!transfer.isDataFlavorSupported(t.getTransferDataFlavors()[0])) {
-                            transfer.add(t);
-                        }
-                    }
-                    exportedFigures = new HashSet<>(transferFigures);
-                    retValue
-                            = transfer;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    retValue = null;
+                if (!transfer.isDataFlavorSupported(t.getTransferDataFlavors()[0])) {
+                    transfer.add(t);
                 }
-            } else {
-                retValue = null;
+
             }
+            exportedFigures = new HashSet<>(transferFigures);
+            return transfer;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
-        return retValue;
+
+
     }
 
     @Override
