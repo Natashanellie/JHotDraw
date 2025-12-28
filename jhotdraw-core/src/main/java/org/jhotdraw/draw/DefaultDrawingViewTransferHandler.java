@@ -337,19 +337,19 @@ FileFormatLoop:                     for (InputFormat format : drawing.getInputFo
         }
 
         try {
-            CompositeTransferable transfer = new CompositeTransferable();
+            CompositeTransferable transferable = new CompositeTransferable();
             for (OutputFormat format : formats) {
                 Transferable t = format.createTransferable(
                                 drawing,
                                 toBeCopied,
                                 view.getScaleFactor());
-                if (!transfer.isDataFlavorSupported(t.getTransferDataFlavors()[0])) {
-                    transfer.add(t);
+                if (!transferable.isDataFlavorSupported(t.getTransferDataFlavors()[0])) {
+                    transferable.add(t);
                 }
 
             }
             exportedFigures = new HashSet<>(transferFigures);
-            return transfer;
+            return transferable;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
